@@ -17,6 +17,7 @@ exports.createProduct = catchasyncerror(async (req,res,next)=>{
 exports.getProduct=catchasyncerror(async(req,res)=>{
     // console.log(req.query);
     const resultperpage=5;
+    const productCount=await Product.countDocuments();
     const searchprod=new searchfeature(Product.find(),req.query)
     .search()
     .filter()
@@ -85,7 +86,8 @@ exports.getDetails=catchasyncerror(async(req,res,next)=>{
     }
     res.status(200).json({
         success:true,
-        getdetails
+        getdetails,
+        productCount,
         
     })
     
