@@ -16,9 +16,11 @@ exports.createProduct = catchasyncerror(async (req,res,next)=>{
 
 exports.getProduct=catchasyncerror(async(req,res)=>{
     // console.log(req.query);
+    const resultperpage=5;
     const searchprod=new searchfeature(Product.find(),req.query)
     .search()
-    .filter();
+    .filter()
+    .pagination(resultperpage);
     // console.log(searchprod);
     const products = await searchprod.query;
     console.log(products)

@@ -44,21 +44,22 @@ class Apifeature {
         const queryCopy={...this.queryStr}
         // removing search query
         const removeQuery=["keyword","page","limit"];
-        removeQuery.forEach(element => delete queryCopy[element]);
-        this.query=this.query.find(queryCopy);
+        // removeQuery.forEach(element => delete queryCopy[element]);
+        removeQuery.forEach((element) => delete queryCopy[element]);
+        // this.query=this.query.find(queryCopy);
         // return this;
 
         //filtering price
-      console.log(queryCopy)
-        let querySt=JSON.stringify(queryCopy);
-        console.log(querySt)
-        querySt=querySt.replace(/\b(gt|gte|lt|lte)\b/g, (key)=>`$${key}`)
+      
+        let queryStr=JSON.stringify(queryCopy);
+
+        // queryStr=queryStr.replace(/\b(gt|gte|lt|lte)\b/g, (key)=>`$${key}`)
+        queryStr = queryStr.replace(/\b(gt|gte|lt|lte)\b/g, (key) => `$${key}`);
         
         // this.query=this.query.find(JSON.parse(querySt))
-        const parsedQuery = JSON.parse(querySt);
-this.query = this.query.find(parsedQuery);
+        this.query = this.query.find(JSON.parse(queryStr));
 
-        console.log(querySt)
+        
 
         return this;
     }
@@ -79,6 +80,15 @@ this.query = this.query.find(parsedQuery);
 //     return this;
 //   }
 
+pagination(resultperpage){
+    const currentPage=Number(this.queryStr.page) || 1;
+
+    const skip=resultperpage * (currentPage-1);
+    this.query=this.query.limit(resultperpage).skip(skip);
+
+    return this;
+    
+}
 
 }
 
