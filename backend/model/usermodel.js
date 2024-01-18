@@ -65,6 +65,21 @@ return jwt.sign({id:this._id},process.env.JWT_SECRET,{
 //compare password
 userSchema.methods.comparePassword=async function(enteredPassword){
     return await bcrypt.compare(enteredPassword,this.password);
+
 }
+ // reset password functionality
+ userSchema.methods.getResetPasswordToken= function(){
+    //generating token
+    const resetToken=require('crypto').randomBytes(20).toString("hex");
+    
+
+    // hashing and adding token
+    this.resetPasswordToken= require('crypto').createHash("sha256").update(resetToken).digest("hash");
+
+    this.resetPasswordExpire=Date.now() + 15 *60*1000;
+
+    return resetToken;
+
+ }
 
 module.exports=mongoose.model("User",userSchema)
