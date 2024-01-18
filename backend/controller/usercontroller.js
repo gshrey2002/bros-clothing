@@ -75,7 +75,7 @@ const sendEmail=require("../utils/sendemail");
 
     await user.save({validateBeforeSave:false});
 
-    const resetPasswordUrl= `${req.protocol}://${req.get("host")}/api/v1/password/reset/${resetTokenn}`
+    const resetPasswordUrl= `${req.protocol}://${req.get("host")}/api/v1/forgotPassword/reset/${resetTokenn}`
 
     const message=`your password reset token is :- \n\n ${resetPasswordUrl} \n\n If you have not requested this Kindly Ignore it`;
 
@@ -99,4 +99,31 @@ const sendEmail=require("../utils/sendemail");
         return next(new Errorhandler(error.message,500))
 
     }
+ })
+
+ //reseting password
+ exports.resetPassword=catchasyncerror(async(req,res,next)=>{
+    //creating hash token
+    const resetPasswordToken= require('crypto').createHash("sha256").update(req.params.token).digest("hash");
+
+    const user=await User.findOne({
+        resetPasswordToken,
+        resetPasswordExpire:{$gt: Date.now()},
+    })
+    if(!user){
+        return next(new Errorhandler("Reset token invalid or exired ",400))
+    }
+
+    if(req.body.password!==req.body.confirmPassword){
+        return next(new Errorhandler("password doesnot match ",400))
+
+    }
+    user.password=req.body.password;
+    user.resetPasswordToken= undefined;
+    user.resetPasswordExpire= undefined;
+
+    await user.save();
+    sendtoken(user,200,res);
+
+
  })
