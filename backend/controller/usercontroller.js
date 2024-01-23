@@ -43,12 +43,7 @@ const sendEmail=require("../utils/sendemail");
     if(!isPasswordMatched){
         return next(new Errorhandler("Invalid email or password ",401))
     }
-    // const token=user.getJWTToken();
 
-    // res.status(200).json({
-    //     success:true,
-    //     token
-    // });
     sendtoken(user,200,res);
  })
 
@@ -127,3 +122,50 @@ const sendEmail=require("../utils/sendemail");
 
 
  })
+
+ // getting user details
+ exports.getUserDetails=catchasyncerror(async (req,res,next)=>{
+    const user=await User.findById(req.user.id);
+    res.status(200).json({
+        success:true,
+        user,
+    })
+
+ })
+
+    exports.changePassword=catchasyncerror(async (req,res,next)=>{
+        const user=await User.findOne(req.params.id).select("+password");
+       
+        const isPasswordMatched = await user.comparePassword(req.body.oldPassword);
+
+        if(!isPasswordMatched){
+            return next(new Errorhandler("Invalid old password ",400))
+        }
+        if(req.body.Password!==req.body.confirmPassword){
+            return next(new Errorhandler("password and confirm password are not same",400))
+        }
+
+        User.password=req.body.Password;
+        await user.save();
+        sendtoken(user,200,res);
+   
+ })
+
+ exports.updateProileDetails=catchasyncerror(async (req,res,next)=>{
+   const newData={
+    name:req.body.name,
+    email:req.body.email
+   }
+   const user=await User.findOneAndUpdate(req.params.id,newData,{
+    new:true,
+    runValidators:true,
+    useFindAndModify:false,
+   })
+   res.status(200).json({
+    success:true,
+
+   })
+
+})
+
+    

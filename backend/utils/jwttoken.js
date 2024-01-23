@@ -3,7 +3,7 @@
 const sendtoken=(user,statusCode,res)=>{
 const token=user.getJWTToken();
 // option for cookie
-const option={
+const options={
     
     expire:new Date(
         Date.now + process.env.COOKIE_EXPIRE * 24 * 60 * 60 * 1000
@@ -12,7 +12,7 @@ const option={
 };
 
   // Set the cookie using res.cookie()
-res.cookie('token', token, option);
+res.cookie('token', token, options);
 
 res.status(statusCode).json({
     success:true,
