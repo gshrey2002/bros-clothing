@@ -156,7 +156,7 @@ const sendEmail=require("../utils/sendemail");
     name:req.body.name,
     email:req.body.email
    }
-   const user=await User.findOneAndUpdate(req.params.id,newData,{
+   const user=await User.findByIdAndUpdate(req.params.id,newData,{
     new:true,
     runValidators:true,
     useFindAndModify:false,
@@ -168,4 +168,65 @@ const sendEmail=require("../utils/sendemail");
 
 })
 
+//getting all user details for admin
+
+ exports.getAllUser=catchasyncerror(async (req,res,next)=>{
+    const user=await User.find();
+    res.status(200).json({
+        success:true,
+        user,
+    })
+
+ })
+
+ // get single user
+ exports.getSingleUser=catchasyncerror(async (req,res,next)=>{
+    const user=await User.findById(req.params.id);
+    if(!user){
+        return next(new Errorhandler(`user doesnot exist with ${req.params.id}`))
+    }
+    res.status(200).json({
+        success:true,
+        user,
+    })
+
+ })
+
+ //update user profile admin
+ exports.updateUserProileDetails=catchasyncerror(async (req,res,next)=>{
+    const newData={
+     name:req.body.name,
+     email:req.body.email,
+     role:req.body.role,
+
+    }
+    const user=await User.findByIdAndUpdate(req.params.id,newData,{
+     new:false,
+     runValidators:true,
+     useFindAndModify:true,
+     query: { email: { $ne: req.body.email } },
+    })
+    res.status(200).json({
+     success:true,
+     
+ 
+    })
+ 
+ })
+    
+//delete user profile admin
+exports.deleteUserProile=catchasyncerror(async (req,res,next)=>{
+
+    const user=await User.findById(req.params.id)
+    if(!user){
+        return next(new Errorhandler(`user not found with id: ${req.params.id}`,401))
+    }
+    await user.deleteOne();
+    res.status(200).json({
+     success:true,
+     
+ 
+    })
+ 
+ })
     
