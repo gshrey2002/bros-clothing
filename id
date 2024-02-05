@@ -1,0 +1,16 @@
+{
+    "success": true,
+    "user": {
+        "name": "Jitender Singh",
+        "email": "sharpsailor@j.com",
+        "password": "$2a$10$/.4UJ5wI4ScNS.in4ZryTOrYFzFJnoIF38kAy5ZFqa1q9RU69Jrgy",
+        "profilePhoto": {
+            "publicId": "image public id",
+            "ImageUrl": "image url"
+        },
+        "role": "user",
+        "_id": "65b949aed4a58984a1363b57",
+        "__v": 0
+    },
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1Yjk0OWFlZDRhNTg5ODRhMTM2M2I1NyIsImlhdCI6MTcwNjY0MTgzOCwiZXhwIjoxNzA3MDczODM4fQ.q0VXz3L1WFrneeMW1bH78GpIplnK6l_hKgSWXoCfRDk"
+}
