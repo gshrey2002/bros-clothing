@@ -97,7 +97,7 @@ exports.getDetails=catchasyncerror(async(req,res,next)=>{
 
 //route check -- admin
 exports.testroute = (req,res)=>{
-    // console.log(req.auth);
+// console.log(req.auth);
 res.status(200).json({message:"route is working fine"})
 }
 
@@ -146,43 +146,48 @@ res.status(200).json({message:"route is working fine"})
 /*#################################################*/
 exports.createProductReview = catchasyncerror(async (req, res, next) => {
     const { rating, comment, productId } = req.body;
-    // console.log(req.cookie) // to test
+    // console.log(req.user.id) // to test
   
-        const jwtAuth = req.cookies['jwt-auth']
-        if (jwtAuth === undefined) {
-          throw new Error('missing token');
-        }
+        // const jwtAuth = req.cookies['jwt-auth']
+        // if (jwtAuth === undefined) {
+        //   throw new Error('missing token');
+        // }
 
   
     const review = {
-      user: req.auth.id,
-      name: req.auth.name,
+      user: req.user._id,
+      name: req.user.name,
       rating: Number(rating),
-      comment,
+      comment: String(comment),
     };
   
     const product = await Product.findById(productId);
     if (!product) {
         return res.status(404).json({ error: 'Product not found' });
       }
+    //   console.log(req.user._id);
   
     const isReviewed = product.reviews.find(
-      (rev) => rev.auth.toString() === req.auth.id.toString()
-    );
+        (rev) => rev.user.toString() === req.user._id.toString()
+      );
 
     // const existingReviewIndex = product.reviews.findIndex(
     //     (review) => review.name === name
     //   );
   
     if (isReviewed) {
-      product.reviews.forEach((rev) => {
-        if (rev.auth.toString() === req.auth.id.toString())
-          (rev.rating = rating), (rev.comment = comment);
-      });
+        product.reviews.forEach((rev) => {
+          if (rev.user.toString() === req.user._id.toString())
+            (rev.rating = rating), (rev.comment = comment);
+        });
     } else {
       product.reviews.push(review);
-      product.numOfReviews = product.reviews.length;
+      product.numberofReviews = product.reviews.length;
     }
+    
+
+    // product.reviews.push(review);
+    // product.numOfReviews = product.reviews.length;
     // if (existingReviewIndex !== -1) {
     //     // Update the existing review
     //     product.reviews[existingReviewIndex].rating = rating;
