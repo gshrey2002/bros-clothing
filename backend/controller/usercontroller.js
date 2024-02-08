@@ -43,12 +43,7 @@ const sendEmail=require("../utils/sendemail");
     if(!isPasswordMatched){
         return next(new Errorhandler("Invalid email or password ",401))
     }
-    // const token=user.getJWTToken();
 
-    // res.status(200).json({
-    //     success:true,
-    //     token
-    // });
     sendtoken(user,200,res);
  })
 
@@ -75,7 +70,7 @@ const sendEmail=require("../utils/sendemail");
 
     await user.save({validateBeforeSave:false});
 
-    const resetPasswordUrl= `${req.protocol}://${req.get("host")}/api/v1/password/reset/${resetTokenn}`
+    const resetPasswordUrl= `${req.protocol}://${req.get("host")}/api/v1/forgotPassword/reset/${resetTokenn}`
 
     const message=`your password reset token is :- \n\n ${resetPasswordUrl} \n\n If you have not requested this Kindly Ignore it`;
 
@@ -100,3 +95,138 @@ const sendEmail=require("../utils/sendemail");
 
     }
  })
+
+ //reseting password
+ exports.resetPassword=catchasyncerror(async(req,res,next)=>{
+    //creating hash token
+    const resetPasswordToken= require('crypto').createHash("sha256").update(req.params.token).digest("hash");
+
+    const user=await User.findOne({
+        resetPasswordToken,
+        resetPasswordExpire:{$gt: Date.now()},
+    })
+    if(!user){
+        return next(new Errorhandler("Reset token invalid or exired ",400))
+    }
+
+    if(req.body.password!==req.body.confirmPassword){
+        return next(new Errorhandler("password doesnot match ",400))
+
+    }
+    user.password=req.body.password;
+    user.resetPasswordToken= undefined;
+    user.resetPasswordExpire= undefined;
+
+    await user.save();
+    sendtoken(user,200,res);
+
+
+ })
+
+ // getting user details
+ exports.getUserDetails=catchasyncerror(async (req,res,next)=>{
+    const user=await User.findById(req.user.id);
+    res.status(200).json({
+        success:true,
+        user,
+    })
+
+ })
+
+    exports.changePassword=catchasyncerror(async (req,res,next)=>{
+        const user=await User.findOne(req.params.id).select("+password");
+       
+        const isPasswordMatched = await user.comparePassword(req.body.oldPassword);
+
+        if(!isPasswordMatched){
+            return next(new Errorhandler("Invalid old password ",400))
+        }
+        if(req.body.Password!==req.body.confirmPassword){
+            return next(new Errorhandler("password and confirm password are not same",400))
+        }
+
+        User.password=req.body.Password;
+        await user.save();
+        sendtoken(user,200,res);
+   
+ })
+
+ exports.updateProileDetails=catchasyncerror(async (req,res,next)=>{
+   const newData={
+    name:req.body.name,
+    email:req.body.email
+   }
+   const user=await User.findByIdAndUpdate(req.params.id,newData,{
+    new:true,
+    runValidators:true,
+    useFindAndModify:false,
+   })
+   res.status(200).json({
+    success:true,
+
+   })
+
+})
+
+//getting all user details for admin
+
+ exports.getAllUser=catchasyncerror(async (req,res,next)=>{
+    const user=await User.find();
+    res.status(200).json({
+        success:true,
+        user,
+    })
+
+ })
+
+ // get single user
+ exports.getSingleUser=catchasyncerror(async (req,res,next)=>{
+    const user=await User.findById(req.params.id);
+    if(!user){
+        return next(new Errorhandler(`user doesnot exist with ${req.params.id}`))
+    }
+    res.status(200).json({
+        success:true,
+        user,
+    })
+
+ })
+
+ //update user profile admin
+ exports.updateUserProileDetails=catchasyncerror(async (req,res,next)=>{
+    const newData={
+     name:req.body.name,
+     email:req.body.email,
+     role:req.body.role,
+
+    }
+    const user=await User.findByIdAndUpdate(req.params.id,newData,{
+     new:false,
+     runValidators:true,
+     useFindAndModify:true,
+     query: { email: { $ne: req.body.email } },
+    })
+    res.status(200).json({
+     success:true,
+     
+ 
+    })
+ 
+ })
+    
+//delete user profile admin
+exports.deleteUserProile=catchasyncerror(async (req,res,next)=>{
+
+    const user=await User.findById(req.params.id)
+    if(!user){
+        return next(new Errorhandler(`user not found with id: ${req.params.id}`,401))
+    }
+    await user.deleteOne();
+    res.status(200).json({
+     success:true,
+     
+ 
+    })
+ 
+ })
+    
