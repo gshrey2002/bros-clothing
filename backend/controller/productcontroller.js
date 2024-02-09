@@ -214,6 +214,83 @@ exports.createProductReview = catchasyncerror(async (req, res, next) => {
     
   });
   
+  //get all review
+
+  exports.getAllProductReviews= catchasyncerror(async(req,res,next)=>{
+    const product=await Product.findById(req.query.id);
+    
+    if (!product) {
+        return res.status(404).json({ error: 'Product not found' });
+      }
+      
+    //   console.log(product.reviews);
+
+      res.status(200).json({
+        success: true,
+        reviews: product.reviews
+      });
+
+  })
+
+  //delete reviews
+
+  exports.deleteReviews=catchasyncerror(async(req,res,next)=>{
+    const product=await Product.findById(req.query.productId);
+    if(!product){
+        return res.status(400).json({error:'product not found'});
+    }
+    const review=product.reviews.filter(rev=>rev._id.toString()!==req.query.id.toString()
+    // const filteredReviews = product.reviews.filter(rev => rev._id.toString() !== req.query.reviewId.toString()
+    );
+
+      
+    let avg = 0;
+  
+    review.forEach((rev) => {
+      avg += rev.rating;
+    });
+  
+    const ratings = avg / review.length;
+    const numberofReviews=review.length
+  
+    await Product.findByIdAndUpdate(req.query.productId,{
+        reviews: review
+        ,ratings,numberofReviews
+    },{
+        new:true,
+        runValidators:true,
+        useFindAndModify:false
+    })
+
+    res.status(200).json({
+        success:true,
+    })
+  })
+  
+  
+    // );
+
+    // let avg = 0;
+
+    // filteredReviews.forEach((rev) => {
+    //     avg += rev.rating;
+    // });
+
+    // const ratings = avg / filteredReviews.length;
+    // const numberofReviews = filteredReviews.length;
+
+    // await Product.findByIdAndUpdate(req.query.productId, {
+    //     reviews: filteredReviews,
+    //     ratings,
+    //     numberofReviews
+    // }, {
+    //     new: true,
+    //     runValidators: true,
+    //     useFindAndModify: false
+    // });
+
+
+   
 
 
 
