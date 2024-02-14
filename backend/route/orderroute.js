@@ -17,4 +17,3 @@ router.route("/admin/deleteOrder/:id").delete(isAuthenticatedUser,authorizeRoles
 
 
 module.exports=router
-updateOrderStatus
