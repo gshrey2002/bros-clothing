@@ -15,9 +15,12 @@ app.use(bodyParser.urlencoded({ extended: true }));
 //route import
 const products=require("./route/productroute")
 const user=require("./route/userroute")
+const order=require("./route/orderroute")
 
 app.use("/api/v1",products)
 app.use("/api/v1",user)
+app.use("/api/v1",order)
+
 
 //middleware
 app.use(middleware)
